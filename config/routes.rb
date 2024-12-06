@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   devise_for :users
 
   # Root route
-  root to: "photos#index"
+  root to: "users#index"
 
   # Routes for the Follow request resource
   post("/insert_follow_request", { :controller => "follow_requests", :action => "create" })
