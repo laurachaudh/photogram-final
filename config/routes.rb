@@ -35,4 +35,8 @@ Rails.application.routes.draw do
   get "/photos/:path_id", to: "photos#show"
   post "/modify_photo/:path_id", to: "photos#update"
   get "/delete_photo/:path_id", to: "photos#destroy"
+  get "/feed", to: "photos#feed", as: :feed
+
+  get "/discover", to: "photos#discover", as: :discover
+
 end

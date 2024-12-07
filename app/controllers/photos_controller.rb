@@ -1,5 +1,7 @@
 class PhotosController < ApplicationController
 
+  before_action :authenticate_user!
+
   def index
     matching_photos = Photo.all
 
@@ -59,5 +61,21 @@ class PhotosController < ApplicationController
     the_photo.destroy
 
     redirect_to("/photos", { :notice => "Photo deleted successfully."} )
+  end
+
+  def feed
+    # Fetch all photos from users that the current user is following
+    following_ids = current_user.following.pluck(:id)
+    @feed_photos = Photo.where(owner_id: following_ids).order(created_at: :desc)
+
+    render template: "photos/feed"
+  end
+
+  def discover
+    # Fetch all photos liked by the users that the current user is following
+    following_ids = current_user.following.pluck(:id)
+    @discover_photos = Photo.joins(:likes).where(likes: { fan_id: following_ids }).distinct
+
+    render template: "photos/discover"
   end
 end
