@@ -1,60 +1,56 @@
 class UsersController < ApplicationController
-def index
-    matching_users = User.all
+  before_action :authenticate_user!, except: [:index, :show]
 
-    @list_of_users = matching_users.order({ :created_at => :desc })
-
-    render({ :template => "users/index" })
+  def index
+    @list_of_users = User.order(created_at: :desc)
   end
 
   def show
-    the_id = params.fetch("path_id")
+    @the_user = User.find_by(username: params[:username])
 
-    matching_users = User.where({ :id => the_id })
+    if @the_user.nil?
+      redirect_to root_path, alert: "User not found."
+    else
+      # Count followers (received follow requests with status 'accepted')
+      @followers_count = @the_user.received_follow_requests.where(status: "accepted").count
 
-    @the_user = matching_users.at(0)
+      # Count following (sent follow requests with status 'accepted')
+      @following_count = @the_user.sent_follow_requests.where(status: "accepted").count
 
-    render({ :template => "users/show" })
+      # Pending follow requests (received follow requests with status 'pending')
+      @pending_follow_requests = @the_user.received_follow_requests.where(status: "pending")
+    end
   end
 
   def create
-    the_user = User.new
-    the_user.username = params.fetch("query_username")
-    the_user.private = params.fetch("query_private", false)
-    the_user.likes_count = params.fetch("query_likes_count")
-    the_user.comments_count = params.fetch("query_comments_count")
+    the_user = User.new(user_params)
 
-    if the_user.valid?
-      the_user.save
-      redirect_to("/users", { :notice => "User created successfully." })
+    if the_user.save
+      redirect_to users_path, notice: "User created successfully."
     else
-      redirect_to("/users", { :alert => the_user.errors.full_messages.to_sentence })
+      redirect_to users_path, alert: the_user.errors.full_messages.to_sentence
     end
   end
 
   def update
-    the_id = params.fetch("path_id")
-    the_user = User.where({ :id => the_id }).at(0)
+    @the_user = User.find(params[:id])
 
-    the_user.username = params.fetch("query_username")
-    the_user.private = params.fetch("query_private", false)
-    the_user.likes_count = params.fetch("query_likes_count")
-    the_user.comments_count = params.fetch("query_comments_count")
-
-    if the_user.valid?
-      the_user.save
-      redirect_to("/users/#{the_user.id}", { :notice => "User updated successfully."} )
+    if @the_user.update(user_params)
+      redirect_to user_profile_path(@the_user.username), notice: "User updated successfully."
     else
-      redirect_to("/users/#{the_user.id}", { :alert => the_user.errors.full_messages.to_sentence })
+      redirect_to user_profile_path(@the_user.username), alert: @the_user.errors.full_messages.to_sentence
     end
   end
 
   def destroy
-    the_id = params.fetch("path_id")
-    the_user = User.where({ :id => the_id }).at(0)
+    @the_user = User.find(params[:id])
+    @the_user.destroy
+    redirect_to users_path, notice: "User deleted successfully."
+  end
 
-    the_user.destroy
+  private
 
-    redirect_to("/users", { :notice => "User deleted successfully."} )
+  def user_params
+    params.require(:user).permit(:username, :private, :email, :password, :password_confirmation)
   end
 end

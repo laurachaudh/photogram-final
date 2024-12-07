@@ -1,46 +1,36 @@
 <div>
   <div>
-    <h1>
-      List of users
-    </h1>
+    <h1>List of users</h1>
   </div>
 </div>
 
 <div>
-  <div>
-    <table border="1">
+  <table border="1">
+    <tr>
+      <th>Username</th>
+      <th>Private</th>
+      <th>Follow Status</th>
+      <th>Details</th>
+    </tr>
+
+    <% @list_of_users.each do |a_user| %>
       <tr>
-        <th>
-          Username
-        </th>
-
-        <th>
-          Private
-        </th>
-
-        <th>
-        </th>
+        <td><%= a_user.username %></td>
+        <td><%= a_user.private ? "Yes" : "No" %></td>
+        <td>
+          <% if user_signed_in? %>
+            <% if current_user.following?(a_user) %>
+              <%= link_to "Unfollow", delete_follow_request_path(a_user.id), method: :get %>
+            <% elsif current_user.pending_follow_request?(a_user) %>
+              Request Sent
+              <%= link_to "Cancel", delete_follow_request_path(a_user.id), method: :get %>
+            <% else %>
+              <%= link_to "Follow", insert_follow_request_path(recipient_id: a_user.id), method: :post %>
+            <% end %>
+          <% end %>
+        </td>
+        <td><%= link_to "Show Details", user_profile_path(a_user.username) %></td>
       </tr>
-
-      <% @list_of_users.each do |a_user| %>
-      <tr>
-        <td>
-          <%= a_user.username %>
-        </td>
-
-        <td>
-          <%= a_user.private ? "Yes" : "No" %>
-        </td>
-
-        <td>
-          <a href="/users/<%= a_user.id %>">
-            Show details
-          </a>
-        </td>
-      </tr>
-      <% end %>
-    </table>
-  </div>
+    <% end %>
+  </table>
 </div>
-
-<hr>
