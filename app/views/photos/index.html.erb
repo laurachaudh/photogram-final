@@ -6,6 +6,26 @@
   </div>
 </div>
 
+<% if user_signed_in? %>
+  <div style="margin-bottom: 20px;">
+    <%= form_with(model: Photo.new, url: photos_path, local: true, html: { enctype: "multipart/form-data" }) do |form| %>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div>
+          <%= form.label :image, "Image" %>
+          <%= form.file_field :image, required: true %>
+        </div>
+        <div>
+          <%= form.label :caption, "Caption" %>
+          <%= form.text_field :caption, required: true, placeholder: "Enter Caption" %>
+        </div>
+        <div>
+          <%= form.submit "Add photo", class: "btn btn-primary" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
 <div>
   <div>
     <table border="1">
@@ -57,7 +77,7 @@
         </td>
 
         <td>
-          <a href="/photos/<%= photo.id %>">
+          <a href="<%= photo_path(photo) %>">
             Show details
           </a>
         </td>

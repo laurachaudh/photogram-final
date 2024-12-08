@@ -34,8 +34,8 @@ core.chrome*
 examples.txt
 .vscode/.ltici_apitoken.yml
 
-# Ignore dotenv files
-/.env*
+
+.env
 
 # Un-ignore SQLite3 db
 !/db/*.sqlite3
