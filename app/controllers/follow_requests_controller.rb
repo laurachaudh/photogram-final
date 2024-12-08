@@ -1,62 +1,77 @@
 class FollowRequestsController < ApplicationController
+  before_action :authenticate_user!
+
   def index
-    matching_follow_requests = FollowRequest.all
-
-    @list_of_follow_requests = matching_follow_requests.order({ :created_at => :desc })
-
-    render({ :template => "follow_requests/index" })
+    @list_of_follow_requests = FollowRequest.order(created_at: :desc)
+    render template: "follow_requests/index"
   end
 
   def show
     the_id = params.fetch("path_id")
-
-    matching_follow_requests = FollowRequest.where({ :id => the_id })
-
-    @the_follow_request = matching_follow_requests.at(0)
-
-    render({ :template => "follow_requests/show" })
+    @the_follow_request = FollowRequest.find(the_id)
+    render template: "follow_requests/show"
   end
 
-def create
-  recipient = User.find(params[:query_recipient_id])
-  status = recipient.private ? "pending" : "accepted"
+  def create
+    recipient = User.find(params[:query_recipient_id])
+    status = recipient.private ? "pending" : "accepted"
 
-  the_follow_request = FollowRequest.new(
-    sender_id: current_user.id,
-    recipient_id: recipient.id,
-    status: status
-  )
+    the_follow_request = FollowRequest.new(
+      sender_id: current_user.id,
+      recipient_id: recipient.id,
+      status: status
+    )
 
-  if the_follow_request.save
-    redirect_to users_path, notice: "Follow request sent."
-  else
-    redirect_to users_path, alert: the_follow_request.errors.full_messages.to_sentence
+    if the_follow_request.save
+      notice_message = recipient.private ? "Follow request sent for approval." : "You are now following #{recipient.username}."
+      redirect_to users_path, notice: notice_message
+    else
+      redirect_to users_path, alert: the_follow_request.errors.full_messages.to_sentence
+    end
   end
-end
-
 
   def update
     the_id = params.fetch("path_id")
-    the_follow_request = FollowRequest.where({ :id => the_id }).at(0)
+    the_follow_request = FollowRequest.find(the_id)
 
-    the_follow_request.sender_id = params.fetch("query_sender_id")
-    the_follow_request.recipient_id = params.fetch("query_recipient_id")
     the_follow_request.status = params.fetch("query_status")
 
-    if the_follow_request.valid?
-      the_follow_request.save
-      redirect_to("/follow_requests/#{the_follow_request.id}", { :notice => "Follow request updated successfully."} )
+    if the_follow_request.save
+      redirect_to users_path, notice: "Follow request updated successfully."
     else
-      redirect_to("/follow_requests/#{the_follow_request.id}", { :alert => the_follow_request.errors.full_messages.to_sentence })
+      redirect_to users_path, alert: the_follow_request.errors.full_messages.to_sentence
     end
   end
 
   def destroy
-    the_id = params.fetch("path_id")
-    the_follow_request = FollowRequest.where({ :id => the_id }).at(0)
+    recipient_id = params[:path_id] # Using recipient_id for better clarity
+    follow_request = current_user.sent_follow_requests.find_by(recipient_id: recipient_id)
 
-    the_follow_request.destroy
+    if follow_request
+      follow_request.destroy
+      redirect_to users_path, notice: "Follow request canceled."
+    else
+      redirect_to users_path, alert: "Follow request not found."
+    end
+  end
 
-    redirect_to("/follow_requests", { :notice => "Follow request deleted successfully."} )
+  def accept
+    follow_request = FollowRequest.find(params[:id])
+
+    if follow_request.update(status: "accepted")
+      redirect_to user_profile_path(follow_request.sender.username), notice: "Follow request accepted."
+    else
+      redirect_to user_profile_path(follow_request.sender.username), alert: "Unable to accept follow request."
+    end
+  end
+
+  def reject
+    follow_request = FollowRequest.find(params[:id])
+
+    if follow_request.destroy
+      redirect_to user_profile_path(follow_request.sender.username), notice: "Follow request rejected."
+    else
+      redirect_to user_profile_path(follow_request.sender.username), alert: "Unable to reject follow request."
+    end
   end
 end

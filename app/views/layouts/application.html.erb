@@ -23,6 +23,9 @@
         </ul>
       </nav>
     </header>
+      <% flash.each do |key, value| %>
+        <p class="flash <%= key %>"><%= value %></p>
+      <% end %>
 
     <%= yield %>
   </body>

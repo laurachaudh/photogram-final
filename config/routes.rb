@@ -7,7 +7,7 @@ Rails.application.routes.draw do
   devise_for :users
 
   get "/users", to: "users#index", as: "users"
-  
+
   # Root route
   root to: "users#index"
 
@@ -15,11 +15,12 @@ Rails.application.routes.draw do
   get "/users/:username", to: "users#show", as: :user_profile
 
   # Routes for the Follow request resource
-  post "/insert_follow_request", to: "follow_requests#create"
-  get "/follow_requests", to: "follow_requests#index"
-  get "/follow_requests/:path_id", to: "follow_requests#show"
-  post "/modify_follow_request/:path_id", to: "follow_requests#update"
-  get "/delete_follow_request/:path_id", to: "follow_requests#destroy"
+  resources :follow_requests, only: [:create, :destroy] do  
+    member do
+      patch :accept
+      delete :reject
+    end
+  end
 
   # Routes for the Like resource
   post "/insert_like", to: "likes#create"

@@ -20,12 +20,12 @@
         <td>
           <% if user_signed_in? %>
             <% if current_user.following?(a_user) %>
-              <%= link_to "Unfollow", delete_follow_request_path(a_user.id), method: :get %>
+              <%= link_to "Unfollow", follow_request_path(current_user.sent_follow_requests.find_by(recipient_id: a_user.id)), method: :delete %>
             <% elsif current_user.pending_follow_request?(a_user) %>
               Request Sent
-              <%= link_to "Cancel", delete_follow_request_path(a_user.id), method: :get %>
+              <%= link_to "Cancel", follow_request_path(current_user.sent_follow_requests.find_by(recipient_id: a_user.id)), method: :delete %>
             <% else %>
-              <%= link_to "Follow", insert_follow_request_path(recipient_id: a_user.id), method: :post %>
+              <%= link_to "Follow", follow_requests_path(query_recipient_id: a_user.id), method: :post %>
             <% end %>
           <% end %>
         </td>
@@ -34,3 +34,4 @@
     <% end %>
   </table>
 </div>
+

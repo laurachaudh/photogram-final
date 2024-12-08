@@ -35,14 +35,16 @@ class User < ApplicationRecord
   has_many :received_follow_requests, class_name: "FollowRequest", foreign_key: :recipient_id, dependent: :destroy
 
   # Followers and following relationships
-  has_many :followers, through: :received_follow_requests, source: :sender
-  has_many :following, through: :sent_follow_requests, source: :recipient
+  has_many :followers, -> { where(follow_requests: { status: "accepted" }) }, through: :received_follow_requests, source: :sender
+  has_many :following, -> { where(follow_requests: { status: "accepted" }) }, through: :sent_follow_requests, source: :recipient
+
+  validates :username, presence: true, uniqueness: true
 
   # Helper methods
 
   # Check if the user is following another user
   def following?(other_user)
-    following.include?(other_user)
+    following.exists?(other_user.id)
   end
 
   # Check if there is a pending follow request for another user
@@ -52,7 +54,7 @@ class User < ApplicationRecord
 
   # Check if the user is followed by another user
   def followed_by?(other_user)
-    received_follow_requests.exists?(sender_id: other_user.id, status: "accepted")
+    followers.exists?(other_user.id)
   end
 
   # Check if there is a pending follow request from another user
