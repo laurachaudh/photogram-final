@@ -3,6 +3,7 @@ class UsersController < ApplicationController
 
   def index
     @list_of_users = User.order(created_at: :desc)
+    render "users/index"
   end
 
   def show

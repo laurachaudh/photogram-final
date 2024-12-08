@@ -3,13 +3,14 @@
   <head>
     <title>Photogram Final</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
   </head>
 
   <body>
     <header>
       <nav>
         <ul>
-          <li><%= link_to "All users", root_path %></li>
+          <li><%= link_to "All users", users_path %></li>
           <li><%= link_to "All public photos", photos_path %></li>
 
           <% if user_signed_in? %>
