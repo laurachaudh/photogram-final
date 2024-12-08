@@ -34,30 +34,30 @@
         </th>
       </tr>
 
-      <% @list_of_photos.each do |a_photo| %>
+      <% @public_photos.each do |photo| %>
       <tr>
         <td>
-          <img src="<%= a_photo.image %>" alt="Photo" width="300">
+          <%= image_tag(photo.image.url, alt: "Photo", width: 300) if photo.image.present? %>
         </td>
 
         <td>
-          <%= a_photo.caption %>
+          <%= photo.caption %>
         </td>
 
         <td>
-          <%= a_photo.owner.username %>
+          <%= photo.owner.username %>
         </td>
 
         <td>
-          <%= time_ago_in_words(a_photo.created_at) %> ago
+          <%= time_ago_in_words(photo.created_at) %> ago
         </td>        
 
         <td>
-          <%= a_photo.likes_count %>
+          <%= photo.likes_count %>
         </td>
 
         <td>
-          <a href="/photos/<%= a_photo.id %>">
+          <a href="/photos/<%= photo.id %>">
             Show details
           </a>
         </td>

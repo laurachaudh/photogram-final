@@ -15,4 +15,9 @@ class Photo < ApplicationRecord
   belongs_to :owner, class_name: "User"
   has_many :comments
   has_many :likes
+
+  # Assuming you're using CarrierWave
+  mount_uploader :image, ImageUploader
+
+  validates :image, presence: true
 end
