@@ -18,51 +18,30 @@ class FollowRequestsController < ApplicationController
   end
 
   def create
-    recipient_id = params[:query_recipient_id]
-    recipient = User.find_by(id: recipient_id)
-  
-    if recipient.nil?
-      redirect_to users_path, alert: "User not found."
-      return
-    end
-  
-    follow_request = current_user.sent_follow_requests.build(recipient_id: recipient.id, status: "pending")
-  
+    recipient = User.find(params[:query_recipient_id])
+    follow_request = current_user.sent_follow_requests.build(recipient: recipient)
+
     if follow_request.save
-      # Automatically accept the request for public users
-      if recipient.private == false
+      # Automatically accept the request if the user is not private
+      if !recipient.private
         follow_request.update(status: "accepted")
       end
-      redirect_to users_path, notice: "Follow request sent successfully."
+      redirect_to user_profile_path(recipient.username), notice: "Follow request sent successfully."
     else
-      redirect_to users_path, alert: follow_request.errors.full_messages.to_sentence
+      redirect_to user_profile_path(recipient.username), alert: follow_request.errors.full_messages.to_sentence
     end
   end
-  
 
   def update
-    follow_request = FollowRequest.find_by(id: params[:id])
-
-    if follow_request.nil?
-      redirect_to root_path, alert: "Follow request not found."
-      return
-    end
-
-    case params[:status]
-    when "accepted"
-      if follow_request.update(status: "accepted")
-        redirect_to user_profile_path(follow_request.sender.username), notice: "Follow request accepted."
-      else
-        redirect_to user_profile_path(follow_request.sender.username), alert: "Unable to accept follow request."
-      end
-    when "rejected"
-      if follow_request.update(status: "rejected")
-        redirect_to user_profile_path(follow_request.sender.username), notice: "Follow request rejected."
-      else
-        redirect_to user_profile_path(follow_request.sender.username), alert: "Unable to reject follow request."
-      end
+    follow_request = FollowRequest.find(params[:id])
+    if params[:status] == "accepted"
+      follow_request.update(status: "accepted")
+      redirect_to user_profile_path(current_user.username), notice: "Follow request accepted."
+    elsif params[:status] == "rejected"
+      follow_request.update(status: "rejected")
+      redirect_to user_profile_path(current_user.username), notice: "Follow request rejected."
     else
-      redirect_to root_path, alert: "Invalid status."
+      redirect_to user_profile_path(current_user.username), alert: "Invalid status."
     end
   end
 

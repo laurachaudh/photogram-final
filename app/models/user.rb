@@ -45,7 +45,7 @@ class User < ApplicationRecord
 
   # Check if the user is following another user
   def following?(other_user)
-    following.exists?(other_user.id)
+    following.exists?(id: other_user.id)
   end
 
   # Check if there is a pending follow request for another user
@@ -55,7 +55,7 @@ class User < ApplicationRecord
 
   # Check if the user is followed by another user
   def followed_by?(other_user)
-    followers.exists?(other_user.id)
+    followers.exists?(id: other_user.id)
   end
 
   # Check if there is a pending follow request from another user

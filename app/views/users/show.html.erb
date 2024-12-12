@@ -10,6 +10,18 @@
     <dt>Following</dt>
     <dd><%= @following_count %></dd>
 
+    <% if user_signed_in? && current_user != @the_user %>
+      <% unless current_user.following?(@the_user) %>
+        <% if @the_user.private %>
+          <p>This user is private. You must send a follow request to follow them.</p>
+        <% else %>
+          <%= button_to "Follow", follow_requests_path(query_recipient_id: @the_user.id), method: :post, class: "btn btn-primary" %>
+        <% end %>
+      <% else %>
+        <p>You are already following this user.</p>
+      <% end %>
+    <% end %>
+
     <% if current_user == @the_user %>
       <dt>Pending Follow Requests</dt>
       <dd>
