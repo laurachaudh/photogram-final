@@ -69,9 +69,13 @@ end
   def feed
     # Fetch all photos from users that the current user is following
     authenticate_user!
-    following_ids = current_user.following.pluck(:id)
+    @user = User.find_by(username: params[:username])
+    if @user.nil?
+      redirect_to root_path, alert: "User not found."
+  else
+    following_ids = @user.following.pluck(:id)
     @feed_photos = Photo.where(owner_id: following_ids).order(created_at: :desc)
-
+  end
     render template: "photos/feed"
   end
 
