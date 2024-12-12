@@ -25,7 +25,7 @@
               Request Sent
               <%= link_to "Cancel", follow_request_path(current_user.sent_follow_requests.find_by(recipient_id: a_user.id)), method: :delete %>
             <% else %>
-              <%= link_to "Follow", follow_requests_path(query_recipient_id: a_user.id), method: :post %>
+              <%= button_to "Follow", follow_requests_path(query_recipient_id: a_user.id), method: :post %>
             <% end %>
           <% end %>
         </td>
@@ -34,4 +34,3 @@
     <% end %>
   </table>
 </div>
-

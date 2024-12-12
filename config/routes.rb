@@ -38,7 +38,7 @@ Rails.application.routes.draw do
 
   # Routes for the Photo resource
   resources :photos, only: [:index, :create, :show]
-  get "/feed", to: "photos#feed", as: :feed
+  get "/users/:username/feed", to: "photos#feed", as: :user_feed
   get "/discover", to: "photos#discover", as: :discover
 
 end

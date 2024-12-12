@@ -29,22 +29,32 @@
     <ul>
       <li><%= link_to "Profile", user_profile_path(@the_user.username) %></li>
       <li><%= link_to "Liked Photos", photos_path(liked_by: @the_user.id) %></li>
-      <li><%= link_to "Feed", feed_path %></li>
+      <li><%= link_to "Feed", user_feed_path(current_user.username) %></li>
       <li><%= link_to "Discover", discover_path %></li>
     </ul>
   </nav>
 
   <h2>Photos</h2>
-  <table>
+  <table border="1">
     <tr>
       <th>Image</th>
+      <th>Owner</th>
       <th>Caption</th>
+      <th>Posted</th>
+      <th>Likes</th>
+      <th></th>
     </tr>
-    <% @the_user.photos.each do |photo| %>
-      <tr>
-        <td><img src="<%= photo.image %>" alt="Photo" width="300"></td>
-        <td><%= photo.caption %></td>
-      </tr>
-    <% end %>
-  </table>
+<% @the_user.photos.each do |photo| %>
+    <tr>
+      <td><%= image_tag(photo.image.url, alt: "Photo", width: 300) if photo.image.present? %></td>
+      <td><%= photo.owner.username %></td>
+      <td><%= photo.caption %></td>
+      <td><%= time_ago_in_words(photo.created_at) %> ago</td>
+      <td><%= photo.likes_count || 0 %></td>
+      <td>
+        <%= link_to "Show Details", photo_path(photo.id) %>
+      </td>
+    </tr>
+  <% end %>
+</table>
 </div>
