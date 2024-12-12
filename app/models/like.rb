@@ -9,6 +9,6 @@
 #  photo_id   :integer
 #
 class Like < ApplicationRecord
-  belongs_to :photo
+  belongs_to :photo, counter_cache: :likes_count
   belongs_to :fan, class_name: "User"
 end

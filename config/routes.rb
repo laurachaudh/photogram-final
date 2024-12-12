@@ -6,39 +6,30 @@ Rails.application.routes.draw do
   
   devise_for :users
 
-  get "/users", to: "users#index", as: "users"
-
   # Root route
   root to: "users#index"
 
-  # User profile route
+  # User-related routes
+  get "/users", to: "users#index", as: "users"
   get "/users/:username", to: "users#show", as: :user_profile
+  get "/users/:username/likes", to: "likes#index", as: :user_likes
+  get "/users/:username/feed", to: "photos#feed", as: :user_feed
 
-  # Routes for the Follow request resource
-  resources :follow_requests, only: [:create, :destroy] do  
+  # Routes for the FollowRequest resource
+  resources :follow_requests, only: [:create, :destroy] do
     member do
       patch :accept
       delete :reject
     end
   end
 
-  # Routes for the Like resource
-  post "/insert_like", to: "likes#create"
-  get "/likes", to: "likes#index"
-  get "/likes/:path_id", to: "likes#show"
-  post "/modify_like/:path_id", to: "likes#update"
-  get "/delete_like/:path_id", to: "likes#destroy"
-
-  # Routes for the Comment resource
-  post "/insert_comment", to: "comments#create"
-  get "/comments", to: "comments#index"
-  get "/comments/:path_id", to: "comments#show"
-  post "/modify_comment/:path_id", to: "comments#update"
-  get "/delete_comment/:path_id", to: "comments#destroy"
-
   # Routes for the Photo resource
-  resources :photos, only: [:index, :create, :show, :update, :destroy]
-  get "/users/:username/feed", to: "photos#feed", as: :user_feed
-  get "/discover", to: "photos#discover", as: :discover
+  resources :photos, only: [:index, :create, :show, :update, :destroy] do
+    resources :likes, only: [:create, :destroy], shallow: true
+    resources :comments, only: [:create, :index, :show, :destroy], shallow: true
+  end
 
+  # Discover route
+  get "/discover", to: "photos#discover", as: :discover
 end
+

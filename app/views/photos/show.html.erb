@@ -3,7 +3,9 @@
 
   <dl>
     <dt>Image</dt>
-    <dd><%= image_tag @the_photo.image.url, alt: "Photo", width: 400 if @the_photo.image.present? %></dd>
+    <dd>
+      <%= image_tag @the_photo.image.url, alt: "Photo", width: 400 if @the_photo.image.present? %>
+    </dd>
 
     <dt>Caption</dt>
     <dd><%= @the_photo.caption %></dd>
@@ -12,45 +14,50 @@
     <dd><%= @the_photo.owner.username %></dd>
 
     <dt>Likes Count</dt>
-    <dd><%= @the_photo.likes_count %></dd>
+    <dd><%= @the_photo.likes_count || 0 %></dd>
 
     <dt>Comments Count</dt>
-    <dd><%= @the_photo.comments_count %></dd>
+    <dd><%= @the_photo.comments_count || 0 %></dd>
 
     <dt>Posted</dt>
     <dd><%= time_ago_in_words(@the_photo.created_at) %> ago</dd>
 
-  <% if user_signed_in? %>
-    <dt>Add a fan</dt>
-   <dd><% if current_user.likes.exists?(photo_id: @the_photo.id) %>
-      <p>You already liked this photo.</p>
-    <% else %>
-      <%= button_to "Like", insert_like_path, params: { photo_id: @the_photo.id }, method: :post %>
+    <% if user_signed_in? %>
+      <dt>Like/Unlike</dt>
+      <dd>
+        <% if current_user.likes.exists?(photo_id: @the_photo.id) %>
+          <% like = current_user.likes.find_by(photo_id: @the_photo.id) %>
+          <%= button_to "Unlike", like_path(like), method: :delete, class: "btn btn-danger" %>
+        <% else %>
+          <%= button_to "Like", photo_likes_path(@the_photo), method: :post, class: "btn btn-primary" %>
+        <% end %>
+      </dd>
     <% end %>
-  <% end %><dd>
+  </dl>
 </div>
 
 <div>
-  <dt>Edit photo</dt>
-    <dd><%= form_with(model: @the_photo, url: photo_path(@the_photo), method: :patch, local: true) do |form| %>
+  <dt>Edit Photo</dt>
+  <dd>
+    <%= form_with(model: @the_photo, url: photo_path(@the_photo), method: :patch, local: true) do |form| %>
       <%= form.label :image, "Image" %>
       <%= form.file_field :image %>
       <%= form.label :caption, "Caption" %>
       <%= form.text_area :caption %>
-      <%= form.submit "Update Photo" %>
-  <% end %></dd>
+      <%= form.submit "Update Photo", class: "btn btn-primary" %>
+    <% end %>
+  </dd>
 </div>
 
 <div>
-<dt> Delete photo</dt>
-  <dd><%= link_to "Delete this photo", photo_path(@the_photo), method: :delete, data: { confirm: "Are you sure you want to delete this photo?" } %></dd>
+  <dt>Delete Photo</dt>
+  <dd>
+    <%= link_to "Delete this photo", photo_path(@the_photo), method: :delete, data: { confirm: "Are you sure you want to delete this photo?" }, class: "btn btn-danger" %>
+  </dd>
 </div>
 
-</dl>
-
 <div>
-<h2>Comments</h2>
-
+  <h2>Comments</h2>
   <table>
     <thead>
       <tr>
@@ -71,12 +78,12 @@
   </table>
 
   <% if user_signed_in? %>
-    <h3>Add a new comment</h3>
-    <%= form_with(model: Comment.new, url: insert_comment_path, local: true) do |form| %>
-        <%= form.hidden_field :photo_id, value: @the_photo.id %>
-        <%= form.label :body, "Comment" %>
-        <%= form.text_area :body %>
-        <%= form.submit "Add Comment" %>
+    <h3>Add a New Comment</h3>
+    <%= form_with(model: Comment.new, url: photo_comments_path(@the_photo), local: true) do |form| %>
+      <%= form.hidden_field :photo_id, value: @the_photo.id %>
+      <%= form.label :body, "Comment" %>
+      <%= form.text_area :body %>
+      <%= form.submit "Add Comment", class: "btn btn-primary" %>
     <% end %>
   <% end %>
 </div>

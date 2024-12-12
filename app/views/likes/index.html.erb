@@ -1,102 +1,25 @@
 <div>
-  <div>
-    <h1>
-      List of all likes
-    </h1>
-  </div>
-</div>
+  <h1>Photos You Liked</h1>
 
-<hr>
-
-<div>
-  <div>
-    <h2>
-      Add a new like
-    </h2>
-
-    <form action="/insert_like" method="post">
-      <div>
-        <label for="photo_id_box">
-          Photo
-        </label>
-
-        <input type="text" id="photo_id_box" name="query_photo_id">
-      </div>
-
-      <div>
-        <label for="fan_id_box">
-          Fan
-        </label>
-
-        <input type="text" id="fan_id_box" name="query_fan_id">
-      </div>
-
-      <button>
-        Create like
-      </button>
-    </form>
-  </div>
-</div>
-
-<hr>
-<div>
-  <div>
-    <table border="1">
+  <table>
+    <thead>
       <tr>
-        <th>
-          ID
-        </th>
-
-        <th>
-          Photo
-        </th>
-
-        <th>
-          Fan
-        </th>
-
-        <th>
-          Created at
-        </th>
-
-        <th>
-          Updated at
-        </th>
-
-        <th>
-        </th>
+        <th>Image</th>
+        <th>Caption</th>
+        <th>Owner</th>
+        <th>Posted</th>
       </tr>
-
-      <% @list_of_likes.each do |a_like| %>
-      <tr>
-        <td>
-          <%= a_like.id %>
-        </td>
-
-        <td>
-          <%= a_like.photo_id %>
-        </td>
-
-        <td>
-          <%= a_like.fan_id %>
-        </td>
-
-        <td>
-          <%= time_ago_in_words(a_like.created_at) %> ago
-        </td>
-        <td>
-          <%= time_ago_in_words(a_like.updated_at) %> ago
-        </td>
-
-        <td>
-          <a href="/likes/<%= a_like.id %>">
-            Show details
-          </a>
-        </td>
-      </tr>
+    </thead>
+    <tbody>
+      <% @liked_photos.each do |photo| %>
+        <tr>
+          <td><%= image_tag photo.image.url, alt: "Photo", width: 200 if photo.image.present? %></td>
+          <td><%= photo.caption %></td>
+          <td><%= photo.owner.username %></td>
+          <td><%= time_ago_in_words(photo.created_at) %> ago</td>
+        </tr>
       <% end %>
-    </table>
-  </div>
+    </tbody>
+  </table>
 </div>
 
-<hr>
