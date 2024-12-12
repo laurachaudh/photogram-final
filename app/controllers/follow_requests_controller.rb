@@ -7,56 +7,84 @@ class FollowRequestsController < ApplicationController
   end
 
   def show
-    the_id = params.fetch("path_id")
-    @the_follow_request = FollowRequest.find(the_id)
-    render template: "follow_requests/show"
-  end
+    the_id = params[:id]
+    @the_follow_request = FollowRequest.find_by(id: the_id)
 
-  def create
-    recipient = User.find(params[:query_recipient_id])
-    status = recipient.private ? "pending" : "accepted"
-
-    the_follow_request = FollowRequest.new(
-      sender_id: current_user.id,
-      recipient_id: recipient.id,
-      status: status
-    )
-
-    if the_follow_request.save
-      notice_message = recipient.private ? "Follow request sent for approval." : "You are now following #{recipient.username}."
-      redirect_to users_path, notice: notice_message
+    if @the_follow_request.nil?
+      redirect_to root_path, alert: "Follow request not found."
     else
-      redirect_to users_path, alert: the_follow_request.errors.full_messages.to_sentence
+      render template: "follow_requests/show"
     end
   end
 
-  def update
-    the_id = params.fetch("path_id")
-    the_follow_request = FollowRequest.find(the_id)
-
-    the_follow_request.status = params.fetch("query_status")
-
-    if the_follow_request.save
-      redirect_to users_path, notice: "Follow request updated successfully."
+  def create
+    recipient_id = params[:query_recipient_id]
+    recipient = User.find_by(id: recipient_id)
+  
+    if recipient.nil?
+      redirect_to users_path, alert: "User not found."
+      return
+    end
+  
+    follow_request = current_user.sent_follow_requests.build(recipient_id: recipient.id, status: "pending")
+  
+    if follow_request.save
+      # Automatically accept the request for public users
+      if recipient.private == false
+        follow_request.update(status: "accepted")
+      end
+      redirect_to users_path, notice: "Follow request sent successfully."
     else
-      redirect_to users_path, alert: the_follow_request.errors.full_messages.to_sentence
+      redirect_to users_path, alert: follow_request.errors.full_messages.to_sentence
+    end
+  end
+  
+
+  def update
+    follow_request = FollowRequest.find_by(id: params[:id])
+
+    if follow_request.nil?
+      redirect_to root_path, alert: "Follow request not found."
+      return
+    end
+
+    case params[:status]
+    when "accepted"
+      if follow_request.update(status: "accepted")
+        redirect_to user_profile_path(follow_request.sender.username), notice: "Follow request accepted."
+      else
+        redirect_to user_profile_path(follow_request.sender.username), alert: "Unable to accept follow request."
+      end
+    when "rejected"
+      if follow_request.update(status: "rejected")
+        redirect_to user_profile_path(follow_request.sender.username), notice: "Follow request rejected."
+      else
+        redirect_to user_profile_path(follow_request.sender.username), alert: "Unable to reject follow request."
+      end
+    else
+      redirect_to root_path, alert: "Invalid status."
     end
   end
 
   def destroy
-    recipient_id = params[:path_id] # Using recipient_id for better clarity
-    follow_request = current_user.sent_follow_requests.find_by(recipient_id: recipient_id)
+    follow_request = FollowRequest.find_by(id: params[:id])
 
-    if follow_request
-      follow_request.destroy
-      redirect_to users_path, notice: "Follow request canceled."
-    else
-      redirect_to users_path, alert: "Follow request not found."
+    if follow_request.nil?
+      redirect_to root_path, alert: "Follow request not found."
+      return
     end
+
+    follow_request.destroy
+    redirect_to users_path, notice: "Follow request canceled."
   end
 
   def accept
-    follow_request = FollowRequest.find(params[:id])
+    follow_request = FollowRequest.find_by(id: params[:id])
+
+    if follow_request.nil?
+      redirect_to root_path, alert: "Follow request not found."
+      return
+    end
 
     if follow_request.update(status: "accepted")
       redirect_to user_profile_path(follow_request.sender.username), notice: "Follow request accepted."
@@ -66,7 +94,12 @@ class FollowRequestsController < ApplicationController
   end
 
   def reject
-    follow_request = FollowRequest.find(params[:id])
+    follow_request = FollowRequest.find_by(id: params[:id])
+
+    if follow_request.nil?
+      redirect_to root_path, alert: "Follow request not found."
+      return
+    end
 
     if follow_request.destroy
       redirect_to user_profile_path(follow_request.sender.username), notice: "Follow request rejected."

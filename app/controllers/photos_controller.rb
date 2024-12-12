@@ -7,17 +7,18 @@ class PhotosController < ApplicationController
   end
 
   def show
-    the_id = params.fetch("path_id")
-
+    the_id = params[:id] # Fetches the correct parameter from the request
+  
     matching_photos = Photo.where(id: the_id)
     @the_photo = matching_photos.first
-
-    if @the_photo.present?
-      render template: "photos/show"
-    else
+  
+    if @the_photo.nil?
       redirect_to photos_path, alert: "Photo not found."
+    else
+      render template: "photos/show"
     end
   end
+  
 
   def create
     the_photo = Photo.new(photo_params)

@@ -37,7 +37,7 @@ Rails.application.routes.draw do
   get "/delete_comment/:path_id", to: "comments#destroy"
 
   # Routes for the Photo resource
-  resources :photos, only: [:index, :create, :show]
+  resources :photos, only: [:index, :create, :show, :update, :destroy]
   get "/users/:username/feed", to: "photos#feed", as: :user_feed
   get "/discover", to: "photos#discover", as: :discover
 
