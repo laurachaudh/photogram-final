@@ -17,7 +17,7 @@
     <dd><%= @the_photo.likes_count || 0 %></dd>
 
     <dt>Comments Count</dt>
-    <dd><%= @the_photo.comments_count || 0 %></dd>
+    <dd><%= @the_photo.comments.count %></dd>
 
     <dt>Posted</dt>
     <dd><%= time_ago_in_words(@the_photo.created_at) %> ago</dd>
@@ -36,25 +36,23 @@
   </dl>
 </div>
 
-<div>
-  <dt>Edit Photo</dt>
-  <dd>
+<% if user_signed_in? && current_user.id == @the_photo.owner_id %>
+  <div>
+    <h2>Edit Photo</h2>
     <%= form_with(model: @the_photo, url: photo_path(@the_photo), method: :patch, local: true) do |form| %>
       <%= form.label :image, "Image" %>
       <%= form.file_field :image %>
       <%= form.label :caption, "Caption" %>
       <%= form.text_area :caption %>
-      <%= form.submit "Update Photo", class: "btn btn-primary" %>
+      <%= form.submit "Update photo", class: "btn btn-primary" %>
     <% end %>
-  </dd>
-</div>
+  </div>
 
-<div>
-  <dt>Delete Photo</dt>
-  <dd>
+  <div>
+    <h2>Delete Photo</h2>
     <%= link_to "Delete this photo", photo_path(@the_photo), method: :delete, data: { confirm: "Are you sure you want to delete this photo?" }, class: "btn btn-danger" %>
-  </dd>
-</div>
+  </div>
+<% end %>
 
 <div>
   <h2>Comments</h2>
@@ -83,7 +81,7 @@
       <%= form.hidden_field :photo_id, value: @the_photo.id %>
       <%= form.label :body, "Comment" %>
       <%= form.text_area :body %>
-      <%= form.submit "Add Comment", class: "btn btn-primary" %>
+      <%= form.button "Add Comment", class: "btn btn-primary", type: "submit" %>
     <% end %>
   <% end %>
 </div>

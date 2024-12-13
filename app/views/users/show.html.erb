@@ -39,9 +39,9 @@
   <nav>
     <ul>
       <li><%= link_to "Profile", user_profile_path(@the_user.username) %></li>
-      <li><%= link_to "Liked Photos", photos_path(liked_by: @the_user.id) %></li>
-      <li><%= link_to "Feed", user_feed_path(current_user.username) %></li>
-      <li><%= link_to "Discover", discover_path %></li>
+      <li><%= link_to "Liked Photos", user_liked_photos_path(@the_user.username) %></li>
+      <li><%= link_to "Feed", user_feed_path(@the_user.username) %></li>
+      <li><%= link_to "Discover", user_discover_path(@the_user.username) %></li>
     </ul>
   </nav>
 

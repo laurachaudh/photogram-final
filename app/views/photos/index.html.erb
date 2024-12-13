@@ -77,7 +77,11 @@
         </td>
 
         <td>
-          <%= link_to "Show details", photo_path(photo.id) %>
+          <% if user_signed_in? %>
+            <%= link_to "Show details", photo_path(photo.id) %>
+          <% else %>
+            <%= link_to "Show details", new_user_session_path, class: "btn btn-primary" %>
+           <% end %>
         </td>
       </tr>
       <% end %>

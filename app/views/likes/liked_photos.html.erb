@@ -1,0 +1,46 @@
+<div>
+  <h1><%= @the_user.username %></h1>
+  <dl>
+    <dt>Private</dt>
+    <dd><%= @the_user.private ? "Yes" : "No" %></dd>
+
+    <dt>Followers</dt>
+    <dd><%= @followers_count %></dd>
+
+    <dt>Following</dt>
+    <dd><%= @following_count %></dd>
+  </dl>
+
+  <nav>
+    <ul>
+      <li><%= link_to "Profile", user_profile_path(@the_user.username) %></li>
+      <li><%= link_to "Liked Photos", user_liked_photos_path(@the_user.username) %></li>
+      <li><%= link_to "Feed", user_feed_path(@the_user.username) %></li>
+      <li><%= link_to "Discover", user_discover_path(@the_user.username) %></li>
+    </ul>
+  </nav>
+
+  <h2>Liked Photos (<%= @the_user.likes.count %>)</h2>
+  <table border="1">
+    <thead>
+      <tr>
+        <th>Image</th>
+        <th>Caption</th>
+        <th>Owner</th>
+        <th>Liked At</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @liked_photos.each do |photo| %>
+        <tr>
+          <td><%= image_tag(photo.image.url, alt: "Photo", width: 200) if photo.image.present? %></td>
+          <td><%= photo.caption %></td>
+          <td><%= photo.owner.username %></td>
+          <td><%= time_ago_in_words(photo.created_at) %> ago</td>
+          <td><%= link_to "Show Details", photo_path(photo.id) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

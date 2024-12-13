@@ -1,18 +1,17 @@
 <h1>Discover Photos</h1>
 
-<% if @discover_photos.any? %>
-  <div>
+<% if @discover_photos.present? && @discover_photos.any?%>
+  <ul>
     <% @discover_photos.each do |photo| %>
-      <div>
-        <img src="<%= photo.image %>" alt="Photo" width="300">
+      <li>
+        <%= image_tag(photo.image.url, alt: "Photo", width: 200) if photo.image.present? %>
         <p>Caption: <%= photo.caption %></p>
         <p>Posted by: <%= link_to photo.owner.username, user_profile_path(photo.owner.username) %></p>
-        <p>Liked by: <%= photo.likes.map { |like| like.fan.username }.join(", ") %></p>
+        <p>Likes: <%= photo.likes_count || 0 %></p>
         <p>Posted: <%= time_ago_in_words(photo.created_at) %> ago</p>
-      </div>
-      <hr>
+      </li>
     <% end %>
-  </div>
+  </ul>
 <% else %>
-  <p>No photos to discover yet. Follow people and explore their likes to see photos here!</p>
+  <p>No photos to discover at the moment. Follow more users to see their liked photos.</p>
 <% end %>

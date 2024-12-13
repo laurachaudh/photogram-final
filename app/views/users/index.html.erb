@@ -9,7 +9,9 @@
     <tr>
       <th>Username</th>
       <th>Private</th>
-      <th>Follow Status</th>
+      <% if user_signed_in? %>
+        <th>Follow Status</th>
+      <% end %>
       <th>Details</th>
     </tr>
 
@@ -17,19 +19,25 @@
       <tr>
         <td><%= a_user.username %></td>
         <td><%= a_user.private ? "Yes" : "No" %></td>
-        <td>
-          <% if user_signed_in? %>
+        <% if user_signed_in? %>
+          <td>
             <% if current_user.following?(a_user) %>
-              <%= link_to "Unfollow", follow_request_path(current_user.sent_follow_requests.find_by(recipient_id: a_user.id)), method: :delete %>
+              <%= link_to "Unfollow", follow_request_path(current_user.sent_follow_requests.find_by(recipient_id: a_user.id)), method: :delete, class: "btn btn-danger", data: { confirm: "Are you sure you want to unfollow this user?" } %>
             <% elsif current_user.pending_follow_request?(a_user) %>
               Request Sent
-              <%= link_to "Cancel", follow_request_path(current_user.sent_follow_requests.find_by(recipient_id: a_user.id)), method: :delete %>
+              <%= link_to "Cancel", follow_request_path(current_user.sent_follow_requests.find_by(recipient_id: a_user.id)), method: :delete, class: "btn btn-warning", data: { confirm: "Cancel follow request?" } %>
             <% else %>
-              <%= button_to "Follow", follow_requests_path(query_recipient_id: a_user.id), method: :post %>
+              <%= button_to "Follow", follow_requests_path(query_recipient_id: a_user.id), method: :post, class: "btn btn-primary" %>
             <% end %>
+          </td>
+        <% end %>
+        <td>
+          <% if user_signed_in? %>
+            <%= link_to "Show Details", user_profile_path(a_user.username), class: "btn btn-info" %>
+          <% else %>
+            <%= link_to "Show Details", new_user_session_path, class: "btn btn-info" %>
           <% end %>
         </td>
-        <td><%= link_to "Show Details", user_profile_path(a_user.username) %></td>
       </tr>
     <% end %>
   </table>

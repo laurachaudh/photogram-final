@@ -17,7 +17,9 @@
 class FollowRequest < ApplicationRecord
   belongs_to :sender, class_name: "User"
   belongs_to :recipient, class_name: "User"
-  
+
+  scope :pending, -> { where(status: nil) }
+
   validates :status, presence: true
   
   before_validation :set_default_status, on: :create

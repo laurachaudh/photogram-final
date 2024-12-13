@@ -30,6 +30,8 @@ Rails.application.routes.draw do
   end
 
   # Discover route
-  get "/discover", to: "photos#discover", as: :discover
-end
+  get "/users/:username/discover", to: "photos#discover", as: :user_discover
 
+  get "/users/:username/liked_photos", to: "likes#liked_photos", as: :user_liked_photos
+
+end

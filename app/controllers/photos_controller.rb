@@ -7,17 +7,31 @@ class PhotosController < ApplicationController
   end
 
   def show
-    the_id = params[:id] # Fetches the correct parameter from the request
-  
-    matching_photos = Photo.where(id: the_id)
-    @the_photo = matching_photos.first
+    the_id = params[:id] # Fetch the correct parameter from the request
+    @the_photo = Photo.find_by(id: the_id)
   
     if @the_photo.nil?
       redirect_to photos_path, alert: "Photo not found."
-    else
-      render template: "photos/show"
+      return
     end
+  
+    # Check if the photo belongs to a private user and handle accordingly
+    if @the_photo.owner.private?
+      unless user_signed_in?
+        redirect_to new_user_session_path, alert: "Sign in to view private photos."
+        return
+      end
+  
+      unless current_user == @the_photo.owner || current_user.following?(@the_photo.owner)
+        redirect_to root_path, alert: "You do not have permission to view this photo."
+        return
+      end
+    end
+  
+    render template: "photos/show"
   end
+  
+  
   
 
   def create
@@ -84,7 +98,11 @@ end
     # Fetch all photos liked by the users that the current user is following
     authenticate_user!
     following_ids = current_user.following.pluck(:id)
-    @discover_photos = Photo.joins(:likes).where(likes: { fan_id: following_ids }).distinct
+    @discover_photos = if following_ids.any?
+      Photo.joins(:likes).where(likes: { fan_id: following_ids }).distinct
+    else
+      Photo.none
+    end
 
     render template: "photos/discover"
   end

@@ -46,15 +46,10 @@ class FollowRequestsController < ApplicationController
   end
 
   def destroy
-    follow_request = FollowRequest.find_by(id: params[:id])
-
-    if follow_request.nil?
-      redirect_to root_path, alert: "Follow request not found."
-      return
-    end
-
+    follow_request = FollowRequest.find(params[:id])
     follow_request.destroy
-    redirect_to users_path, notice: "Follow request canceled."
+
+    redirect_to users_path, notice: "Unfollowed successfully."
   end
 
   def accept

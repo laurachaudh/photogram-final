@@ -1,25 +1,23 @@
-<div>
-  <h1>Photos You Liked</h1>
+<h1><%= @user.username %>'s Liked Photos</h1>
 
-  <table>
-    <thead>
+<table>
+  <thead>
+    <tr>
+      <th>Image</th>
+      <th>Caption</th>
+      <th>Owner</th>
+      <th>Liked At</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @liked_photos.each do |photo| %>
       <tr>
-        <th>Image</th>
-        <th>Caption</th>
-        <th>Owner</th>
-        <th>Posted</th>
+        <td><%= image_tag(photo.image.url, alt: "Photo", width: 200) if photo.image.present? %></td>
+        <td><%= photo.caption %></td>
+        <td><%= photo.owner.username %></td>
+        <td><%= time_ago_in_words(photo.created_at) %> ago</td>
       </tr>
-    </thead>
-    <tbody>
-      <% @liked_photos.each do |photo| %>
-        <tr>
-          <td><%= image_tag photo.image.url, alt: "Photo", width: 200 if photo.image.present? %></td>
-          <td><%= photo.caption %></td>
-          <td><%= photo.owner.username %></td>
-          <td><%= time_ago_in_words(photo.created_at) %> ago</td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-</div>
+    <% end %>
+  </tbody>
+</table>
 

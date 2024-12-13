@@ -1,86 +1,78 @@
 <div>
-  <div>
-    <h1>
-      Like #<%= @the_like.id %> details
-    </h1>
+  <h1><%= @the_user.username %></h1>
+  <dl>
+    <dt>Private</dt>
+    <dd><%= @the_user.private ? "Yes" : "No" %></dd>
 
-    <div>
-      <div>
-        <a href="/likes">
-          Go back
-        </a>
-      </div>
+    <dt>Followers</dt>
+    <dd><%= @followers_count %></dd>
 
-      <div>
-        <a href="/delete_like/<%= @the_like.id %>">
-          Delete like
-        </a>
-      </div>
-    </div>
+    <dt>Following</dt>
+    <dd><%= @following_count %></dd>
 
-    <dl>
-      <dt>
-        Photo
-      </dt>
+    <% if user_signed_in? && current_user != @the_user %>
+      <% unless current_user.following?(@the_user) %>
+        <% if @the_user.private %>
+          <p>This user is private. You must send a follow request to follow them.</p>
+        <% else %>
+          <%= button_to "Follow", follow_requests_path(query_recipient_id: @the_user.id), method: :post, class: "btn btn-primary" %>
+        <% end %>
+      <% else %>
+        <p>You are already following this user.</p>
+      <% end %>
+    <% end %>
+
+    <% if current_user == @the_user %>
+      <dt>Pending Follow Requests</dt>
       <dd>
-        <%= @the_like.photo_id %>
+        <% @pending_follow_requests.each do |request| %>
+          <p>
+            <%= request.sender.username %>
+            <%= link_to "Accept", update_follow_request_path(request.id, status: "accepted"), method: :post %> |
+            <%= link_to "Reject", update_follow_request_path(request.id, status: "rejected"), method: :post %>
+          </p>
+        <% end %>
       </dd>
+    <% end %>
+  </dl>
 
-      <dt>
-        Fan
-      </dt>
-      <dd>
-        <%= @the_like.fan_id %>
-      </dd>
-
-      <dt>
-        Created at
-      </dt>
-      <dd>
-        <%= time_ago_in_words(@the_like.created_at) %> ago
-      </dd>
-
-      <dt>
-        Updated at
-      </dt>
-      <dd>
-        <%= time_ago_in_words(@the_like.updated_at) %> ago
-      </dd>
-    </dl>
-  </div>
+  <nav>
+    <ul>
+      <li><%= link_to "Profile", user_profile_path(@the_user.username) %></li>
+      <li><%= link_to "Liked Photos", user_liked_photos_path(@the_user.username) %></li>
+      <li><%= link_to "Feed", user_feed_path(current_user.username) %></li>
+      <li><%= link_to "Discover", discover_path %></li>
+    </ul>
+  </nav>
 </div>
-
-<hr>
-
 
 <div>
-  <div>
-    <h2>
-      Edit like
-    </h2>
-
-    <form action="/modify_like/<%= @the_like.id %>"  method="post" >
-      <div>
-        <label for="photo_id_box">
-          Photo
-        </label>
-
-        <input type="text" id="photo_id_box" name="query_photo_id" value="<%= @the_like.photo_id %>">
-      </div>
-
-      <div>
-        <label for="fan_id_box">
-          Fan
-        </label>
-
-        <input type="text" id="fan_id_box" name="query_fan_id" value="<%= @the_like.fan_id %>">
-      </div>
-
-      <button>
-        Update like
-      </button>
-    </form>
-  </div>
+  <h2>Liked Photos</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Image</th>
+        <th>Caption</th>
+        <th>Owner</th>
+        <th>Posted</th>
+        <th>Likes</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @liked_photos.each do |photo| %>
+        <tr>
+          <td><%= image_tag(photo.image.url, alt: "Photo", width: 300) if photo.image.present? %></td>
+          <td><%= photo.caption %></td>
+          <td><%= photo.owner.username %></td>
+          <td><%= time_ago_in_words(photo.created_at) %> ago</td>
+          <td><%= photo.likes_count || 0 %></td>
+          <td>
+            <%= link_to "Show Details", photo_path(photo.id) %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 </div>
 
-<hr>
