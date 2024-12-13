@@ -24,7 +24,7 @@
       </nav>
     </header>
       <% flash.each do |key, message| %>
-        <div class="alert alert-<%= key %>"><%= message %></div>
+        <div class="alert alert-<%= key %>" data-turbo-permanent><%= message %></div>
       <% end %>
 
     <%= yield %>

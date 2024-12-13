@@ -1,5 +1,5 @@
 class PhotosController < ApplicationController
-  before_action :authenticate_user!, only: [:create, :update, :destroy, :feed, :discover]
+  before_action :authenticate_user!, only: [:show, :create, :update, :destroy, :feed, :discover]
 
   def index
     @public_photos = Photo.joins(:owner).where(users: { private: false }).order(created_at: :desc)
@@ -8,15 +8,14 @@ class PhotosController < ApplicationController
 
   def show
     @the_photo = Photo.find_by(id: params[:id])
-
+  
     if @the_photo.nil?
       redirect_to photos_path, alert: "Photo not found."
       return
     end
-
+  
     render template: "photos/show"
   end
-
   def create
     the_photo = Photo.new(photo_params)
     the_photo.owner_id = current_user.id
