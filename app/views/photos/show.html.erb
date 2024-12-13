@@ -26,11 +26,11 @@
       <dt>Like/Unlike</dt>
       <dd>
         <% if current_user.likes.exists?(photo_id: @the_photo.id) %>
-          <% like = current_user.likes.find_by(photo_id: @the_photo.id) %>
-          <%= button_to "Unlike", like_path(like), method: :delete, class: "btn btn-danger" %>
+            <% like = current_user.likes.find_by(photo_id: @the_photo.id) %>
+            <%= link_to "Unlike", like_path(like), method: :delete, class: "btn btn-link text-danger" %>
         <% else %>
-          <%= button_to "Like", photo_likes_path(@the_photo), method: :post, class: "btn btn-primary" %>
-        <% end %>
+            <%= button_to "Like", photo_likes_path(@the_photo), method: :post, class: "btn btn-primary" %>
+      <% end %>
       </dd>
     <% end %>
   </dl>
