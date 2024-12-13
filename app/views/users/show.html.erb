@@ -28,8 +28,8 @@
         <% @pending_follow_requests.each do |request| %>
           <p>
             <%= request.sender.username %>
-            <%= link_to "Accept", update_follow_request_path(request.id, status: "accepted"), method: :post %> |
-            <%= link_to "Reject", update_follow_request_path(request.id, status: "rejected"), method: :post %>
+            <%= link_to "Accept", accept_follow_request_path(request.id), method: :patch, class: "btn btn-success" %>
+            <%= link_to "Reject", reject_follow_request_path(request.id), method: :delete, class: "btn btn-danger" %>
           </p>
         <% end %>
       </dd>

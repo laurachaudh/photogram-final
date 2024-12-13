@@ -53,32 +53,20 @@ class FollowRequestsController < ApplicationController
   end
 
   def accept
-    follow_request = FollowRequest.find_by(id: params[:id])
-
-    if follow_request.nil?
-      redirect_to root_path, alert: "Follow request not found."
-      return
-    end
-
+    follow_request = FollowRequest.find(params[:id])
     if follow_request.update(status: "accepted")
-      redirect_to user_profile_path(follow_request.sender.username), notice: "Follow request accepted."
+      redirect_to user_profile_path(current_user.username), notice: "Follow request accepted."
     else
-      redirect_to user_profile_path(follow_request.sender.username), alert: "Unable to accept follow request."
+      redirect_to user_profile_path(current_user.username), alert: "Unable to accept follow request."
     end
   end
 
   def reject
-    follow_request = FollowRequest.find_by(id: params[:id])
-
-    if follow_request.nil?
-      redirect_to root_path, alert: "Follow request not found."
-      return
-    end
-
-    if follow_request.destroy
-      redirect_to user_profile_path(follow_request.sender.username), notice: "Follow request rejected."
+    follow_request = FollowRequest.find(params[:id])
+    if follow_request.update(status: "rejected")
+      redirect_to user_profile_path(current_user.username), notice: "Follow request rejected."
     else
-      redirect_to user_profile_path(follow_request.sender.username), alert: "Unable to reject follow request."
+      redirect_to user_profile_path(current_user.username), alert: "Unable to reject follow request."
     end
   end
 end
