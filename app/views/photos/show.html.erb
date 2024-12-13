@@ -80,8 +80,8 @@
     <%= form_with(model: Comment.new, url: photo_comments_path(@the_photo), local: true) do |form| %>
       <%= form.hidden_field :photo_id, value: @the_photo.id %>
       <%= form.label :body, "Comment" %>
-      <%= form.text_area :body %>
-      <%= form.button "Add Comment", class: "btn btn-primary", type: "submit" %>
+      <%= form.text_area :body, required: true %>
+      <button type="submit" class="btn btn-primary">Add Comment</button>
     <% end %>
   <% end %>
 </div>
