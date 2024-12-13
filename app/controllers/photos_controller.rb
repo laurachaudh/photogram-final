@@ -13,7 +13,9 @@ class PhotosController < ApplicationController
       redirect_to photos_path, alert: "Photo not found."
       return
     end
-  
+
+    @is_owner = user_signed_in? && @the_photo.owner == current_user
+
     render template: "photos/show"
   end
   def create
