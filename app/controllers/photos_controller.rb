@@ -1,5 +1,5 @@
 class PhotosController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:index, :show]
+  before_action :authenticate_user!, only: [:create, :update, :destroy, :feed, :discover]
 
   def index
     @public_photos = Photo.joins(:owner).where(users: { private: false }).order(created_at: :desc)
@@ -7,37 +7,20 @@ class PhotosController < ApplicationController
   end
 
   def show
-    the_id = params[:id] # Fetch the correct parameter from the request
-    @the_photo = Photo.find_by(id: the_id)
-  
+    @the_photo = Photo.find_by(id: params[:id])
+
     if @the_photo.nil?
       redirect_to photos_path, alert: "Photo not found."
       return
     end
-  
-    # Check if the photo belongs to a private user and handle accordingly
-    if @the_photo.owner.private?
-      unless user_signed_in?
-        redirect_to new_user_session_path, alert: "Sign in to view private photos."
-        return
-      end
-  
-      unless current_user == @the_photo.owner || current_user.following?(@the_photo.owner)
-        redirect_to root_path, alert: "You do not have permission to view this photo."
-        return
-      end
-    end
-  
+
     render template: "photos/show"
   end
-  
-  
-  
 
   def create
     the_photo = Photo.new(photo_params)
     the_photo.owner_id = current_user.id
-  
+
     if the_photo.save
       redirect_to photos_path, notice: "Photo created successfully."
     else
@@ -46,15 +29,8 @@ class PhotosController < ApplicationController
     end
   end
 
-  private
-
-def photo_params
-  params.require(:photo).permit(:caption, :image)
-end
-
   def update
-    the_id = params.fetch("path_id")
-    the_photo = Photo.find_by(id: the_id)
+    the_photo = Photo.find_by(id: params[:id])
 
     if the_photo.nil?
       redirect_to photos_path, alert: "Photo not found."
@@ -69,8 +45,7 @@ end
   end
 
   def destroy
-    the_id = params.fetch("path_id")
-    the_photo = Photo.find_by(id: the_id)
+    the_photo = Photo.find_by(id: params[:id])
 
     if the_photo.nil?
       redirect_to photos_path, alert: "Photo not found."
@@ -82,27 +57,26 @@ end
   end
 
   def feed
-    # Fetch all photos from users that the current user is following
-    authenticate_user!
     @user = User.find_by(username: params[:username])
+
     if @user.nil?
       redirect_to root_path, alert: "User not found."
-  else
-    following_ids = @user.following.pluck(:id)
-    @feed_photos = Photo.where(owner_id: following_ids).order(created_at: :desc)
-  end
+    else
+      following_ids = @user.following.pluck(:id)
+      @feed_photos = Photo.where(owner_id: following_ids).order(created_at: :desc)
+    end
+
     render template: "photos/feed"
   end
 
   def discover
-    # Fetch all photos liked by the users that the current user is following
-    authenticate_user!
     following_ids = current_user.following.pluck(:id)
+
     @discover_photos = if following_ids.any?
-      Photo.joins(:likes).where(likes: { fan_id: following_ids }).distinct
-    else
-      Photo.none
-    end
+                         Photo.joins(:likes).where(likes: { fan_id: following_ids }).distinct
+                       else
+                         Photo.none
+                       end
 
     render template: "photos/discover"
   end
